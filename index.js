@@ -11,7 +11,7 @@ const connection = new sqlite3.Database(dbPath);
 
 const PORT = 80;
 
-fastify.register(cors, { origin: '*' })
+fastify.register(cors, { origin: '*', credentials: true })
 fastify.register(multipart);
 fastify.register(handler, { connection });
 
