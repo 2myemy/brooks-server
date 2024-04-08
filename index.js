@@ -11,7 +11,7 @@ const connection = new sqlite3.Database(dbPath);
 
 const PORT = 80;
 
-fastify.register(cors, { origin: true, methods: ['GET', 'POST'] })
+fastify.register(cors, { origin: '*' })
 fastify.register(multipart);
 fastify.register(handler, { connection });
 
@@ -25,7 +25,7 @@ fastify.register(fastifyStatic, {
 const start = async () => {
   try {
     await fastify.listen({
-        port: PORT,
+        port: PORT, host: '0.0.0.0'
     });
     console.log(`Server running on http://localhost:${PORT}`);
   } catch (err) {
