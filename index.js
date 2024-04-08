@@ -29,6 +29,7 @@ const start = async () => {
     });
     console.log(`Server running on http://localhost:${PORT}`);
   } catch (err) {
+    console.log(`HI, it is error`);
     console.error(err);
     process.exit(1);
   }
