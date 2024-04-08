@@ -25,7 +25,7 @@ fastify.register(fastifyStatic, {
 const start = async () => {
   try {
     await fastify.listen({
-        port: PORT, host: '3.139.151.153'
+        port: PORT, host: '0.0.0.0'
     });
     console.log(`Server running on http://localhost:${PORT}`);
   } catch (err) {
