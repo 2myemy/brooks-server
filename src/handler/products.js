@@ -155,7 +155,7 @@ async function routes(fastify, options) {
 
     for await (const part of parts) {
       if (part.type === "file") {
-        if (part.filename !== "") {
+        if (part.filename !== "" && part.filename !== undefined) {
           const filename = part.filename;
           const imageExtension = filename.split(".").pop();
           imageName = `${Date.now()}.${imageExtension}`;
@@ -195,12 +195,12 @@ async function routes(fastify, options) {
 
       if (imageName !== "") {
         await connection.run(
-          "UPDATE product_images (id, imageUrl) VALUES (?, ?)",
-          [productId, `/uploads/${imageName}`]
+          "UPDATE product_images SET imageUrl=? WHERE id = ?",
+          [`/uploads/${imageName}`, productId]
         );
       }
 
-      // await connection.run('COMMIT');
+      await connection.run('COMMIT');
 
       return result;
     } catch (error) {
