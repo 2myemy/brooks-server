@@ -173,16 +173,14 @@ async function routes(fastify, options) {
     try {
       const result = await new Promise((resolve, reject) => {
         connection.run(
-          "UPDATE products (name, price, condition, subject, course, email, createdAt, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+          "UPDATE products SET name=?, price=?, condition=?, subject=?, course=?, email=?",
           [
-            fields.course,
+            fields.name,
             fields.price,
             fields.condition,
             fields.subject,
             fields.course,
-            fields.email,
-            new Date().getTime(),
-            0
+            fields.email
           ],
           function(err) {
             if (err) {
