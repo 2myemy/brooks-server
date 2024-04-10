@@ -1,231 +1,40 @@
+const fastify = require("fastify")();
+const handler = require("./src/handler");
+
+const sqlite3 = require("sqlite3");
+const cors = require("@fastify/cors");
+const multipart = require("@fastify/multipart");
+const fastifyStatic = require("@fastify/static");
 const path = require("path");
-const fs = require("fs").promises;
+const dbPath = path.join(__dirname, "database.db");
+const connection = new sqlite3.Database(dbPath);
 
-async function routes(fastify, options) {
-  const { connection } = options;
+const PORT = 3002;
 
-  fastify.get("/products", async (request, reply) => {
-    const {
-      offset,
-      limit,
-      subject,
-      course,
-      query: searchQuery
-    } = request.query;
+fastify.register(cors, {
+  origin: "*"
+});
+fastify.register(multipart);
+fastify.register(handler, { connection });
 
-    let query =
-      "SELECT * FROM products p JOIN product_images img ON p.id = img.id";
-    if (subject) {
-      query += ` WHERE p.subject='${subject}'`;
-      if (course) {
-        query += `  AND p.course='${course}'`;
-      }
-      if (searchQuery) {
-        query += ` AND p.name LIKE '%${searchQuery}%'`;
-      }
-    } else {
-      if (searchQuery) {
-        query += `WHERE p.name LIKE '%${searchQuery}%'`;
-      }
-    }
+// 정적 파일 제공
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, "uploads"), // 정적 파일이 위치한 디렉터리
+  prefix: "/uploads/" // 정적 파일에 접근할 경로
+});
 
-    return new Promise((resolve, reject) => {
-      connection.all(query, (err, rows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({
-            items: rows,
-            limit,
-            offset,
-            total: 0
-          });
-        }
-      });
+// 서버 실행
+const start = async () => {
+  try {
+    await fastify.listen({
+      port: PORT,
+      host: "0.0.0.0"
     });
-  });
+    console.log(`Server running on http://localhost:${PORT}`);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+};
 
-  fastify.get("/products/:id", async (request, reply) => {
-    const productId = request.params.id;
-    return new Promise((resolve, reject) => {
-      connection.get(
-        "SELECT * FROM products p JOIN product_images img ON p.id = img.id WHERE p.id = ?",
-        [productId],
-        (err, row) => {
-          if (err) {
-            reject(err);
-          } else if (!row) {
-            reply.code(404).send({ error: "Product not found" });
-          } else {
-            resolve(row);
-          }
-        }
-      );
-    });
-  });
-
-  fastify.post("/products", async (request, reply) => {
-    const parts = request.parts();
-
-    let fields = {};
-    let productId = 1;
-    let imagePath;
-    let imageName;
-
-    for await (const part of parts) {
-      if (part.type === "file") {
-        const filename = part.filename;
-        const imageExtension = filename.split(".").pop();
-        imageName = `${Date.now()}.${imageExtension}`;
-        imagePath = path.join(__dirname, "/../../uploads", imageName);
-        const data = await part.toBuffer();
-        await fs.writeFile(imagePath, data);
-      } else {
-        fields[part.fieldname] = part.value;
-      }
-    }
-
-    await connection.run("BEGIN TRANSACTION");
-
-    try {
-      const result = await new Promise((resolve, reject) => {
-        connection.run(
-          "INSERT INTO products (name, price, condition, subject, course, email, createdAt, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-          [
-            fields.course,
-            fields.price,
-            fields.condition,
-            fields.subject,
-            fields.course,
-            fields.email,
-            new Date().getTime(),
-            0
-          ],
-          function(err) {
-            if (err) {
-              reject(err);
-            } else {
-              productId = this.lastID;
-              resolve({ success: true });
-            }
-          }
-        );
-      });
-
-      await connection.run(
-        "INSERT INTO product_images (id, imageUrl) VALUES (?, ?)",
-        [productId, `/uploads/${imageName}`]
-      );
-      await connection.run("COMMIT");
-
-      return result;
-    } catch (error) {
-      console.error(error);
-      await connection.run("ROLLBACK");
-      throw error;
-    }
-  });
-
-  fastify.patch(`/products/:id`, async (request, reply) => {
-    const productId = request.params.id;
-    return new Promise((resolve, reject) => {
-      connection.run(
-        "UPDATE products SET status = 1 WHERE id = ?",
-        [productId],
-        function(err) {
-          if (err) {
-            reject(err);
-          } else if (this.changes === 0) {
-            reply.code(404).send({ error: "Product not found" });
-          } else {
-            resolve({ success: true });
-          }
-        }
-      );
-    });
-  });
-
-  fastify.post(`/products/modify/:id`, async (request, reply) => {
-    const productId = request.params.id;
-    const parts = request.parts();
-
-    let fields = {};
-    let imagePath;
-    let imageName = "";
-
-    for await (const part of parts) {
-      if (part.type === "file") {
-        if (part.filename !== "" && part.filename !== undefined) {
-          const filename = part.filename;
-          const imageExtension = filename.split(".").pop();
-          imageName = `${Date.now()}.${imageExtension}`;
-          imagePath = path.join(__dirname, "/../../uploads", imageName);
-          const data = await part.toBuffer();
-          await fs.writeFile(imagePath, data);
-        }
-      } else {
-        fields[part.fieldname] = part.value;
-      }
-    }
-
-    await connection.run("BEGIN TRANSACTION");
-
-    try {
-      const result = await new Promise((resolve, reject) => {
-        connection.run(
-          "UPDATE products SET name=?, price=?, condition=?, subject=?, course=?, email=? WHERE id = ?",
-          [
-            fields.name,
-            fields.price,
-            fields.condition,
-            fields.subject,
-            fields.course,
-            fields.email,
-            fields.id
-          ],
-          function(err) {
-            if (err) {
-              reject(err);
-            } else {
-              resolve({ success: true });
-            }
-          }
-        );
-      });
-
-      if (imageName !== "") {
-        await connection.run(
-          "UPDATE product_images SET imageUrl=? WHERE id = ?",
-          [`/uploads/${imageName}`, productId]
-        );
-      }
-
-      await connection.run('COMMIT');
-
-      return result;
-    } catch (error) {
-      console.error(error);
-      await connection.run("ROLLBACK");
-      throw error;
-    }
-  });
-
-  fastify.delete("/products/:id", async (request, reply) => {
-    const productId = request.params.id;
-    return new Promise((resolve, reject) => {
-      connection.run("DELETE FROM products WHERE id = ?", [productId], function(
-        err
-      ) {
-        if (err) {
-          reject(err);
-        } else if (this.changes === 0) {
-          reply.code(404).send({ error: "Product not found" });
-        } else {
-          resolve({ success: true });
-        }
-      });
-    });
-  });
-}
-
-module.exports = routes;
+start();
