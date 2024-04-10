@@ -10,6 +10,7 @@ async function routes(fastify, options) {
       limit,
       subject,
       course,
+      status,
       query: searchQuery
     } = request.query;
 
@@ -18,14 +19,20 @@ async function routes(fastify, options) {
     if (subject) {
       query += ` WHERE p.subject='${subject}'`;
       if (course) {
-        query += `  AND p.course='${course}'`;
+        query += ` AND p.course='${course}'`;
+      }
+      if (status) {
+        query += ` AND p.status='${status}'`;
       }
       if (searchQuery) {
         query += ` AND p.name LIKE '%${searchQuery}%'`;
       }
     } else {
+      if (status) {
+        query += ` AND p.status='${status}'`;
+      }
       if (searchQuery) {
-        query += `WHERE p.name LIKE '%${searchQuery}%'`;
+        query += ` WHERE p.name LIKE '%${searchQuery}%'`;
       }
     }
 
