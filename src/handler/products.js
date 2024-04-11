@@ -299,11 +299,8 @@ async function routes(fastify, options) {
         subject:
           "Someone wants to purchase your book! (" + fields.bookname + ")",
         html:
-          "<h1>Someone wants to contact you to purchase your book</h1><br><br>" +
+          "<h1>Someone wants to contact you to purchase your book!</h1><br><br>" +
           "<h3>[ Book Information ]</h3><br>" +
-          "<img src=" +
-          fields.image +
-          '" width="200" hieght="250" />' +
           "<p>" +
           "<b>Book name: </b>" +
           fields.bookname +
