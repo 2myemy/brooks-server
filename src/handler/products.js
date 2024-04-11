@@ -278,8 +278,8 @@ async function routes(fastify, options) {
         fields[part.fieldname] = part.value;
       }
 
-      // let receiverEmail = fields.email;
-      let receiverEmail = "lss8340@gmail.com";
+      let receiverEmail = fields.email;
+      // let receiverEmail = "lss8340@gmail.com";
 
       // transport 생성
       let transport = nodemailer.createTransport({
