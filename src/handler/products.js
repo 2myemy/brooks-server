@@ -1,9 +1,17 @@
 const path = require("path");
 const fs = require("fs").promises;
 const nodemailer = require("nodemailer");
+const aws = require("aws-sdk");
+require('dotenv').config()
 
 async function routes(fastify, options) {
   const { connection } = options;
+  const bucket_name = "brooks-bookstore.com";
+  const s3 = new aws.S3({
+    accessKeyId: process.env.accessKeyId,
+    secretAccessKey: process.env.secretAccessKey,
+    region: "us-east-2"
+  });
 
   fastify.get("/products", async (request, reply) => {
     const {
@@ -87,7 +95,19 @@ async function routes(fastify, options) {
         imageName = `${Date.now()}.${imageExtension}`;
         imagePath = path.join(__dirname, "/../../uploads", imageName);
         const data = await part.toBuffer();
+
+        const s3_params = {
+          Bucket: bucket_name,
+          Key: "uploads/" + imageName,
+          Body: data
+        };
+
         await fs.writeFile(imagePath, data);
+        s3.upload(s3_params, (err, data) => {
+          if (err) throw err;
+          console.log("File upload succeed");
+          console.log(data);
+        });
       } else {
         fields[part.fieldname] = part.value;
       }
