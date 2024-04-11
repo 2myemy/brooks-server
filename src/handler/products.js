@@ -300,7 +300,7 @@ async function routes(fastify, options) {
           "Someone wants to purchase your book! (" + fields.bookname + ")",
         html:
           "<h1>Someone wants to contact you to purchase your book!</h1><br><br>" +
-          "<h3>[ Book Information ]</h3><br>" +
+          "<h3>[ Book Information ]</h3>" +
           "<p>" +
           "<b>Book name: </b>" +
           fields.bookname +
@@ -313,7 +313,7 @@ async function routes(fastify, options) {
           "<br>" +
           "<b>Price: </b>" +
           fields.price +
-          "<br><br><br>Please let us know if you want to confirm to sell this book." +
+          "<br><br><br>Please confirm if you want to sell this book." +
           "</p>"
       };
 
