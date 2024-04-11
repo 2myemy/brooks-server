@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs").promises;
+const nodemailer = require("nodemailer");
 
 async function routes(fastify, options) {
   const { connection } = options;
@@ -207,7 +208,7 @@ async function routes(fastify, options) {
         );
       }
 
-      await connection.run('COMMIT');
+      await connection.run("COMMIT");
 
       return result;
     } catch (error) {
@@ -232,6 +233,78 @@ async function routes(fastify, options) {
         }
       });
     });
+  });
+
+  fastify.post(`/email/send`, async (request, reply) => {
+    try {
+      const EMAIL = "noreplybrooks@gmail.com";
+      const EMAIL_PW = "widw cszm pnuf ppas";
+      const parts = request.parts();
+
+      let fields = {};
+      for await (const part of parts) {
+        fields[part.fieldname] = part.value;
+      }
+
+      // let receiverEmail = fields.email;
+      let receiverEmail = "lss8340@gmail.com";
+
+      // transport 생성
+      let transport = nodemailer.createTransport({
+        service: "gmail",
+        host: "0.0.0.0",
+        port: 25,
+        auth: {
+          user: EMAIL,
+          pass: EMAIL_PW
+        }
+      });
+
+      let mailOptions = {
+        from: EMAIL,
+        to: receiverEmail,
+        subject:
+          "Someone wants to purchase your book! (" + fields.bookname + ")",
+        html:
+          "<h1>Someone wants to contact you to purchase your book</h1><br><br>" +
+          "<h3>[ Book Information ]</h3><br>" +
+          "<img src=" +
+          fields.image +
+          '" width="200" hieght="250" />' +
+          "<p>" +
+          "<b>Book name: </b>" +
+          fields.bookname +
+          "<br>" +
+          "<b>Subject: </b>" +
+          fields.subject +
+          "<br>" +
+          "<b>Course: </b>" +
+          fields.course +
+          "<br>" +
+          "<b>Price: </b>" +
+          fields.price +
+          "<br><br><br>Please let us know if you want to confirm to sell this book." +
+          "</p>"
+      };
+
+      // send email
+      const result = await new Promise((resolve, reject) => {
+        transport.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.log(error);
+            reply.code(404).send({ error: "Sending a mail failed" });
+            reject(err);
+          }
+          console.log(info);
+          console.log("send mail success!");
+          resolve({ success: true });
+        });
+      });
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   });
 }
 
