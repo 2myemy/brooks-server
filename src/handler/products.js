@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs").promises;
 const nodemailer = require("nodemailer");
 const aws = require("aws-sdk");
-require('dotenv').config()
+require("dotenv").config();
 
 async function routes(fastify, options) {
   const { connection } = options;
@@ -102,7 +102,7 @@ async function routes(fastify, options) {
           Body: data
         };
 
-        await fs.writeFile(imagePath, data);
+        // await fs.writeFile(imagePath, data);
         s3.upload(s3_params, (err, data) => {
           if (err) throw err;
           console.log("File upload succeed");
@@ -187,9 +187,21 @@ async function routes(fastify, options) {
           const filename = part.filename;
           const imageExtension = filename.split(".").pop();
           imageName = `${Date.now()}.${imageExtension}`;
-          imagePath = path.join(__dirname, "/../../uploads", imageName);
+          // imagePath = path.join(__dirname, "/../../uploads", imageName);
           const data = await part.toBuffer();
-          await fs.writeFile(imagePath, data);
+
+          const s3_params = {
+            Bucket: bucket_name,
+            Key: "uploads/" + imageName,
+            Body: data
+          };
+
+          // await fs.writeFile(imagePath, data);
+          s3.upload(s3_params, (err, data) => {
+            if (err) throw err;
+            console.log("File upload succeed");
+            console.log(data);
+          });
         }
       } else {
         fields[part.fieldname] = part.value;
