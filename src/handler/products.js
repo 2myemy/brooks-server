@@ -299,7 +299,7 @@ async function routes(fastify, options) {
         subject:
           "Someone wants to purchase your book! (" + fields.bookname + ")",
         html:
-          "<h1>Someone wants to contact you to purchase your book!</h1><br><br>" +
+          "<h1>Someone wants to contact you to purchase your book!</h1><br>" +
           "<h3>[ Book Information ]</h3>" +
           "<p>" +
           "<b>Book name: </b>" +
@@ -314,11 +314,11 @@ async function routes(fastify, options) {
           "<b>Price: </b>" +
           fields.price +
           "<br><br><p>"+
-          "<h3>[ Message From The Potential Purchaser ]</h3>" +
+          "<h3>[ Message From The Customer ]</h3>" +
           "<p>" +
           "<b>email: </b>" +
           fields.receiveremail +
-          "<b>Message: </b>" +
+          "<br><b>Message: </b>" +
           fields.message+
           "<br><br>If you want to sell this book, please reply to the message received at the above email address." +
           "</p>"
