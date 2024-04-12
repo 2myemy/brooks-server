@@ -120,7 +120,7 @@ async function routes(fastify, options) {
         connection.run(
           "INSERT INTO products (name, price, condition, subject, course, email, createdAt, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
           [
-            fields.course,
+            fields.name,
             fields.price,
             fields.condition,
             fields.subject,
@@ -209,6 +209,9 @@ async function routes(fastify, options) {
     }
 
     await connection.run("BEGIN TRANSACTION");
+
+    // if (fields.status == "0") fields.status = 0;
+    // else if (fields.status == "1") fields.status = 1;
 
     try {
       const result = await new Promise((resolve, reject) => {
@@ -313,13 +316,13 @@ async function routes(fastify, options) {
           "<br>" +
           "<b>Price: </b>" +
           fields.price +
-          "<br><br><p>"+
+          "<br><br><p>" +
           "<h3>[ Message From The Customer ]</h3>" +
           "<p>" +
           "<b>Email: </b>" +
           fields.receiveremail +
           "<br><b>Message: </b>" +
-          fields.message+
+          fields.message +
           "<br><br>If you want to sell this book, please reply to the message received at the above email address." +
           "</p>"
       };
