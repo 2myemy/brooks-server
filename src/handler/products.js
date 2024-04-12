@@ -316,7 +316,7 @@ async function routes(fastify, options) {
           "<br><br><p>"+
           "<h3>[ Message From The Customer ]</h3>" +
           "<p>" +
-          "<b>email: </b>" +
+          "<b>Email: </b>" +
           fields.receiveremail +
           "<br><b>Message: </b>" +
           fields.message+
