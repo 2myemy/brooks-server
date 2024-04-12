@@ -313,7 +313,14 @@ async function routes(fastify, options) {
           "<br>" +
           "<b>Price: </b>" +
           fields.price +
-          "<br><br><br>Please confirm if you want to sell this book." +
+          "<br><br><p>"+
+          "<h3>[ Message From The Potential Purchaser ]</h3>" +
+          "<p>" +
+          "<b>email: </b>" +
+          fields.receiveremail +
+          "<b>Message: </b>" +
+          fields.message+
+          "<br><br>If you want to sell this book, please reply to the message received at the above email address." +
           "</p>"
       };
 
