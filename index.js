@@ -8,15 +8,6 @@ const fastifyStatic = require("@fastify/static");
 const path = require("path");
 const dbPath = path.join(__dirname, "database.db");
 const connection = new sqlite3.Database(dbPath);
-const cors = require('cors');
-
-let corsOption = {
-    origin: 'https://brooks-bookstore.com/', // 허락하는 요청 주소
-    credentials: true // true로 하면 설정한 내용을 response 헤더에 추가 해줍니다.
-} 
-
-app.use(cors(corsOption)); 
-
 const PORT = 3002;
 
 fastify.register(cors, {
