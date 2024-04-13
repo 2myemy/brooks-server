@@ -8,7 +8,7 @@ const fastifyStatic = require("@fastify/static");
 const path = require("path");
 const dbPath = path.join(__dirname, "database.db");
 const connection = new sqlite3.Database(dbPath);
-const PORT = 3003;
+const PORT = 3002;
 
 fastify.register(cors, {
   origin: "*"
