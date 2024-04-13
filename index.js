@@ -5,14 +5,7 @@ const handler = require("./src/handler");
 
 const sqlite3 = require("sqlite3");
 
-const fastify = require("fastify")({
-  http2: true,
-  https: {
-    allowHTTP1: true, // fallback support for HTTP1
-    key: fs.readFileSync('server.key'),
-    cert: fs.readFileSync('server.crt')
-  }
-});
+const fastify = require("fastify")();
 const cors = require("@fastify/cors");
 const multipart = require("@fastify/multipart");
 const fastifyStatic = require("@fastify/static");
