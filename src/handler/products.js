@@ -310,7 +310,7 @@ async function routes(fastify, options) {
           fields.receiveremail +
           "<br><b>Message: </b>" +
           fields.message +
-          "<br><br>If you want to sell this book, please reply to the message received at the above email address.</p>" +
+          "<br><br>If you want to sell this book, please reply to the message received at the above email address.</p>"
       };
 
       // send email
