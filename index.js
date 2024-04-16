@@ -1,4 +1,3 @@
-
 const fs = require('fs')
 const path = require("path");
 const handler = require("./src/handler");
@@ -13,7 +12,6 @@ const dbPath = path.join(__dirname, "database.db");
 const connection = new sqlite3.Database(dbPath);
 
 
-
 const PORT = 3002;
 
 fastify.register(cors, {
@@ -22,17 +20,15 @@ fastify.register(cors, {
 fastify.register(multipart);
 fastify.register(handler, { connection });
 
-// 정적 파일 제공
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, "uploads"), // 정적 파일이 위치한 디렉터리
-  prefix: "/uploads/" // 정적 파일에 접근할 경로
+  root: path.join(__dirname, "uploads"),
+  prefix: "/uploads/"
 });
 
 fastify.get("/", function (request, reply) {
   reply.code(200).send({ hello: "world" });
 });
 
-// 서버 실행
 const start = async () => {
   try {
     await fastify.listen({
@@ -47,5 +43,3 @@ const start = async () => {
 };
 
 start();
-
-
