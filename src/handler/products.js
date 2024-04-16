@@ -85,7 +85,6 @@ async function routes(fastify, options) {
 
     let fields = {};
     let productId = 1;
-    let imagePath;
     let imageName;
 
     for await (const part of parts) {
@@ -93,7 +92,7 @@ async function routes(fastify, options) {
         const filename = part.filename;
         const imageExtension = filename.split(".").pop();
         imageName = `${Date.now()}.${imageExtension}`;
-        imagePath = path.join(__dirname, "/../../uploads", imageName);
+        // imagePath = path.join(__dirname, "/../../uploads", imageName);
         const data = await part.toBuffer();
 
         const s3_params = {
@@ -178,7 +177,6 @@ async function routes(fastify, options) {
     const parts = request.parts();
 
     let fields = {};
-    let imagePath;
     let imageName = "";
 
     for await (const part of parts) {
@@ -209,9 +207,6 @@ async function routes(fastify, options) {
     }
 
     await connection.run("BEGIN TRANSACTION");
-
-    // if (fields.status == "0") fields.status = 0;
-    // else if (fields.status == "1") fields.status = 1;
 
     try {
       const result = await new Promise((resolve, reject) => {
@@ -283,9 +278,7 @@ async function routes(fastify, options) {
       }
 
       let receiverEmail = fields.email;
-      // let receiverEmail = "lss8340@gmail.com";
 
-      // transport 생성
       let transport = nodemailer.createTransport({
         service: "gmail",
         host: "0.0.0.0",
@@ -304,27 +297,20 @@ async function routes(fastify, options) {
         html:
           "<h1>Someone wants to contact you to purchase your book!</h1><br>" +
           "<h3>[ Book Information ]</h3>" +
-          "<p>" +
-          "<b>Book name: </b>" +
+          "<p><b>Book name: </b>" +
           fields.bookname +
-          "<br>" +
-          "<b>Subject: </b>" +
+          "<br><b>Subject: </b>" +
           fields.subject +
-          "<br>" +
-          "<b>Course: </b>" +
+          "<br><b>Course: </b>" +
           fields.course +
-          "<br>" +
-          "<b>Price: </b>" +
+          "<br><b>Price: </b>" +
           fields.price +
-          "<br><br><p>" +
-          "<h3>[ Message From The Customer ]</h3>" +
-          "<p>" +
-          "<b>Email: </b>" +
+          "<br><br></p><h3>[ Message From The Customer ]</h3>" +
+          "<p><b>Email: </b>" +
           fields.receiveremail +
           "<br><b>Message: </b>" +
           fields.message +
-          "<br><br>If you want to sell this book, please reply to the message received at the above email address." +
-          "</p>"
+          "<br><br>If you want to sell this book, please reply to the message received at the above email address.</p>" +
       };
 
       // send email
